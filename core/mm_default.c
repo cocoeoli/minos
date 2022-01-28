@@ -661,6 +661,7 @@ static struct page *alloc_pages_from_block(struct mem_block *block,
 	meta = (struct page *)block_meta_base(block);
 	meta += bit;
 	page = meta;
+	/* addr = block_phys_addr + page_size*bit */
 	addr = (void *)PAGE_ADDR(block->phy_base, bit);
 	meta->phy_base = (unsigned long)addr | (count & 0xfff);
 	for (i = 1; i < count; i++) {
@@ -808,6 +809,7 @@ void *__get_free_pages(int pages, int align)
 
 	page = __alloc_pages(pages, align);
 	if (page)
+		/* 返回page的地址，屏蔽低12位 */
 		return (void *)(page->phy_base & __PAGE_MASK);
 
 	return NULL;

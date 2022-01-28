@@ -207,7 +207,7 @@ static int create_free_vmm_area(struct mm_struct *mm, unsigned long base,
 				base, size);
 		return -EINVAL;
 	}
-
+	/* 初始化 vmm_area 虚拟地址空间 */
 	va = __alloc_vmm_area_entry(base, size);
 	if (!va) {
 		pr_err("failed to alloc free vmm_area\n");
@@ -215,6 +215,7 @@ static int create_free_vmm_area(struct mm_struct *mm, unsigned long base,
 	}
 
 	spin_lock(&mm->vmm_area_lock);
+	/* 将当前vma地址加入到mm_struct中 */
 	ret = add_free_vmm_area(mm, va);
 	spin_unlock(&mm->vmm_area_lock);
 
@@ -898,7 +899,7 @@ static void vmm_area_init(struct mm_struct *mm, int bit64)
 		size = 0x100000000;
 #endif
 	}
-
+	/* 初始化vma并将其加入mm_struct结构中 */
 	create_free_vmm_area(mm, base, size, 0);
 }
 
@@ -914,6 +915,7 @@ void vm_mm_struct_init(struct vm *vm)
 	init_list(&mm->vmm_area_free);
 	init_list(&mm->vmm_area_used);
 
+	/* 分配一个页面存放pgd */
 	mm->pgd_base = alloc_pgd();
 	if (mm->pgd_base == 0) {
 		pr_err("No memory for vm page table\n");

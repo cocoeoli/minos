@@ -1099,7 +1099,7 @@ struct vm *create_vm(struct vmtag *vme)
 		vm->flags |= VM_FLAGS_NATIVE;
 
 	iommu_vm_init(vm);
-
+	/* 初始化mm结构体 */
 	vm_mm_struct_init(vm);
 
 	ret = create_vcpus(vm);
