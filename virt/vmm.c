@@ -684,6 +684,7 @@ void *map_vm_mem(unsigned long gva, size_t size)
 	unsigned long pa;
 
 	/* assume the memory is continuously */
+	/* 获得pa的物理地址 */
 	pa = guest_va_to_pa(gva, 1);
 	if (create_host_mapping(pa, pa, size, 0))
 		return NULL;
