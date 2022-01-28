@@ -662,6 +662,7 @@ int vm_power_off(int vmid, void *arg, int byself)
 
 static int guest_mm_init(struct vm *vm, uint64_t base, uint64_t size)
 {
+	/* 此函数将一个新的vma加入到vm->mm中，并替换到就vma */
 	if (split_vmm_area(&vm->mm, base, size, VM_NORMAL) == NULL) {
 		pr_err("invalid memory config for guest VM\n");
 		return -EINVAL;
@@ -689,6 +690,7 @@ int create_vm_mmap(int vmid,  unsigned long offset,
 	return 0;
 }
 
+/*创建guest vm起始位置*/
 int create_guest_vm(struct vmtag *tag)
 {
 	int ret = VMID_INVALID;
@@ -1097,7 +1099,7 @@ struct vm *create_vm(struct vmtag *vme)
 		vm->flags |= VM_FLAGS_NATIVE;
 
 	iommu_vm_init(vm);
-
+	/* 初始化mm结构体 */
 	vm_mm_struct_init(vm);
 
 	ret = create_vcpus(vm);
