@@ -684,7 +684,9 @@ void *map_vm_mem(unsigned long gva, size_t size)
 	unsigned long pa;
 
 	/* assume the memory is continuously */
+	/* 直接由gva计算出对应的hpa地址（根据前面的页表计算出来的） */
 	pa = guest_va_to_pa(gva, 1);
+	/* 建立stage 2页表 */
 	if (create_host_mapping(pa, pa, size, 0))
 		return NULL;
 

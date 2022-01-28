@@ -1191,7 +1191,7 @@ void *malloc(size_t size)
 void *zalloc(size_t size)
 {
 	void *base;
-
+	/* return a slab header */
 	base = malloc(size);
 	if (!base)
 		return NULL;

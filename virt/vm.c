@@ -694,7 +694,7 @@ int create_guest_vm(struct vmtag *tag)
 	int ret = VMID_INVALID;
 	struct vm *vm;
 	struct vmtag *vmtag;
-
+	/* 返回物理页面，虚拟地址已经转换为物理地址？ */
 	vmtag = (struct vmtag *)map_vm_mem((unsigned long)tag,
 			sizeof(struct vmtag));
 	if (!vmtag)
