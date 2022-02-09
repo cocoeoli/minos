@@ -550,7 +550,7 @@ struct mem_block *alloc_mem_block(unsigned long flags)
 		section = &mem_sections[i];
 		if (!(section->type & MEM_SECTION_F_BLOCK))
 			continue;
-
+		/* 从section 中分一个block出来 */
 		block = __alloc_mem_block(section, flags);
 		if (block)
 			break;

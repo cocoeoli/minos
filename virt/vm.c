@@ -667,7 +667,7 @@ static int guest_mm_init(struct vm *vm, uint64_t base, uint64_t size)
 		pr_err("invalid memory config for guest VM\n");
 		return -EINVAL;
 	}
-
+	/* 建立vma到block的映射关系 */
 	if (alloc_vm_memory(vm)) {
 		pr_err("allocate memory for vm-%d failed\n", vm->vmid);
 		return -ENOMEM;
@@ -696,7 +696,7 @@ int create_guest_vm(struct vmtag *tag)
 	int ret = VMID_INVALID;
 	struct vm *vm;
 	struct vmtag *vmtag;
-	/* 返回物理页面，虚拟地址已经转换为物理地址？ */
+	/* 使主机能够访问vm_mm， 并建立映射关系 */
 	vmtag = (struct vmtag *)map_vm_mem((unsigned long)tag,
 			sizeof(struct vmtag));
 	if (!vmtag)
@@ -709,7 +709,7 @@ int create_guest_vm(struct vmtag *tag)
 	vm = create_vm(vmtag);
 	if (!vm)
 		goto unmap_vmtag;
-
+	/* vmtag->mem_base, vmtag->mem_size 是传入参数，后期没改 */
 	ret = guest_mm_init(vm, vmtag->mem_base, vmtag->mem_size);
 	if (ret)
 		goto release_vm;

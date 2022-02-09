@@ -236,11 +236,13 @@ static inline int vmm_area_map_bk(struct mm_struct *mm, struct vmm_area *va)
 	unsigned long size = va->size;
 
 	list_for_each_entry(block, &va->b_head, list) {
+		/* 为 block建立页表 */
 		ret = create_guest_mapping(mm, base, block->phy_base,
 				MEM_BLOCK_SIZE, va->flags);
 		if (ret)
 			return ret;
 
+		/* 每映射完一个块， 虚拟地址加block,总大小减block */
 		base += MEM_BLOCK_SIZE;
 		size -= MEM_BLOCK_SIZE;
 
@@ -409,6 +411,7 @@ struct vmm_area *split_vmm_area(struct mm_struct *mm, unsigned long base,
 	}
 
 	spin_lock(&mm->vmm_area_lock);
+	/* 在mm中找到合适的vma */
 	list_for_each_entry(va, &mm->vmm_area_free, list) {
 		start = va->start;
 		end = va->end + 1;
@@ -464,6 +467,7 @@ struct vmm_area *split_vmm_area(struct mm_struct *mm, unsigned long base,
 
 	if (new) {
 		new->flags = flags;
+		/* 添加一个 vma */
 		add_used_vmm_area(mm, new);
 	}
 
@@ -836,10 +840,11 @@ static int __alloc_vm_memory(struct mm_struct *mm, struct vmm_area *va)
 	 * TBD: get contiueous memory or not contiueous ?
 	 */
 	for (i = 0; i < count; i++) {
+		/* 从section 中分一块block出来 */
 		block = alloc_mem_block(GFB_VM);
 		if (!block)
 			return -ENOMEM;
-
+		/* 将block 加入到b_head中,这里是分配了虚拟地址，并没有建立真正的页表 */
 		list_add_tail(&va->b_head, &block->list);
 	}
 
@@ -854,10 +859,11 @@ int alloc_vm_memory(struct vm *vm)
 	list_for_each_entry(va, &mm->vmm_area_used, list) {
 		if (!(va->flags & VM_NORMAL))
 			continue;
-
+		/* 给vma分配block块,并以list的方式存储 */
 		if (__alloc_vm_memory(mm, va))
 			goto out;
 
+		/* 将vma映射到具体的block中，并建立页表 */
 		if (map_vmm_area(mm, va, 0))
 			goto out;
 	}
